@@ -33,7 +33,7 @@ export const CellAction: React.FC<CellActionProps> = ({
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await axios.delete(`/api/ordenes/${data.id}`);
+      await axios.delete(`/api/cotizaciones/${data.id}`);
       toast.success('Product deleted.');
       router.refresh();
     } catch (error) {
@@ -82,7 +82,7 @@ export const CellAction: React.FC<CellActionProps> = ({
             <Trash className="mr-2 h-4 w-4" /> Delete
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => router.push(`/ordenes/${data.id}/view`)}
+            onClick={() => window.open(`/visualize/${data.id}`, '_blank')}
           >
             <Eye className="mr-2 h-4 w-4" /> Visualize
           </DropdownMenuItem>

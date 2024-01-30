@@ -92,7 +92,6 @@ import { NextResponse } from "next/server";
 //   }
 // }
 
-
 export async function PATCH(
   req: Request,
   { params }: { params: { ordenId: string } }
@@ -103,6 +102,44 @@ export async function PATCH(
 
     if (!params.ordenId) {
       return new NextResponse("Product id is required", { status: 400 });
+    }
+
+    // descontar los productos de inventario
+
+    for (const productId of productIds) {
+      const product = await prismadb.product.findUnique({
+        where: {
+          id: productId.id,
+        },
+      });
+
+      if (product) {
+        if (productId.cantidad > product.cantidad) {
+          console.log(productId.cantidad, product.cantidad);
+          return new NextResponse("No hay productos suficientes en stock", {
+            status: 400,
+          });
+        }
+      }
+    }
+
+    for (const productId of productIds) {
+      const product = await prismadb.product.findUnique({
+        where: {
+          id: productId.id,
+        },
+      });
+
+      if (product) {
+        await prismadb.product.update({
+          where: {
+            id: productId.id,
+          },
+          data: {
+            cantidad: product.cantidad - productId.cantidad,
+          },
+        });
+      }
     }
 
     await prismadb.ordenDeEntrega.update({

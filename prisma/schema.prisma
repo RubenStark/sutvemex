@@ -44,3 +44,14 @@ model ProductOrder {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 }
+
+model Client {
+  id        String         @id @default(uuid())
+  nombre    String
+  direccion String
+  poblacion String
+  telefono  String
+  correo    String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}

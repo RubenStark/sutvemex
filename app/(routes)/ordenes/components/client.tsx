@@ -22,7 +22,7 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({
   return (
     <> 
       <div className="flex items-center justify-between">
-        <Heading title={`Cotizaciones (${data.length})`} description="Maneje las cotizaciones" />
+        <Heading title={`Ordenes (${data.length})`} description="Maneje las ordenes de entrega" />
         <Button onClick={() => router.push(`/cotizaciones/new`)}>
           <Plus className="mr-2 h-4 w-4" /> Add New
         </Button>

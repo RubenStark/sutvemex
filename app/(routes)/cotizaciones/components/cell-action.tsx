@@ -75,7 +75,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             <Trash className="mr-2 h-4 w-4" /> Delete
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => router.push(`/cotizaciones/${data.id}/view`)}
+            onClick={() => window.open(`/visualize/${data.id}`, '_blank')}
           >
             <Eye className="mr-2 h-4 w-4" /> Visualize
           </DropdownMenuItem>

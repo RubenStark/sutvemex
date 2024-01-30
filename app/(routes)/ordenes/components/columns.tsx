@@ -11,6 +11,7 @@ export type CotizacionColumn = {
   población: string
   atencion: string
   fecha: string
+  enviado: string
   productos: ProductOrder[]
   createdAt: string
   updatedAt: string
@@ -36,6 +37,10 @@ export const columns: ColumnDef<CotizacionColumn>[] = [
   {
     accessorKey: "fecha",
     header: "Fecha",
+  },
+  {
+    accessorKey: "enviado",
+    header: "Enviado",
   },
   {
     id: "actions",

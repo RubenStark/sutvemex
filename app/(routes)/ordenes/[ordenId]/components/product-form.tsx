@@ -70,13 +70,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [productId, setProductId] = useState<string>();
   const [productCode, setProductCode] = useState<string>();
 
-  const title = initialData ? "Editar cotizacion" : "Crear cotizacion";
+  const title = initialData ? "Editar orden de entrteg" : "Crear orden de entrega";
   const description = initialData
-    ? "Editar una cotizacion."
-    : "Añadir una cotizacion";
+    ? "Editar una orden de entrega."
+    : "Añadir una orden de entrega";
   const toastMessage = initialData
-    ? "Cotizacion actualizada."
-    : "Cotizacion creada.";
+    ? "Orden de entrega actualizada."
+    : "Orden de entrega creada.";
   const action = initialData ? "Guardar cambios" : "Crear";
 
   const defaultValues = initialData
@@ -116,11 +116,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         console.log(allData);
 
         if (data.cotizacion) {
-        await axios.patch(`/api/cotizaciones/${params.cotizacionId}`, allData);
+          await axios.patch(
+            `/api/cotizaciones/${params.cotizacionId}`,
+            allData
+          );
         } else {
           await axios.patch(`/api/ordenes/${params.cotizacionId}`, allData);
         }
-
       } else {
         const allData = {
           ...data,
@@ -131,7 +133,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         };
         await axios.post(`/api/cotizaciones`, allData);
       }
-      router.push(`/cotizaciones`);
+      router.push(`/ordenes`);
       toast.success(toastMessage);
     } catch (error: any) {
       toast.error("Something went wrong.");
@@ -144,7 +146,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(`/api/cotizaciones/${params.cotizacionId}`);
+      await axios.delete(`/api/cotizaciones/${params.ordenId}`);
       router.push(`/cotizaciones`);
       toast.success("Product deleted.");
     } catch (error: any) {
@@ -350,7 +352,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             </div>
           </div>
 
-          <Button disabled={loading} className="ml-auto" type="submit">
+          <Button
+            disabled={loading}
+            type="button"
+            variant="outline"
+            onClick={() => router.push("/cotizaciones")}
+          >
+            Cancelar
+          </Button>
+          <Button
+            disabled={loading}
+            className="ml-auto px-7 ml-2"
+            type="submit"
+          >
             {action}
           </Button>
         </form>

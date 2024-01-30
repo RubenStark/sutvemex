@@ -100,10 +100,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   });
 
   const onSubmit = async (data: ProductFormValues) => {
+    if (products.length === 0) {
+      toast.error("No hay productos en la cotización.");
+      return;
+    }
+
     try {
       setLoading(true);
       if (initialData) {
-
         const allData = {
           ...data,
           productIds: products.map((product) => ({
@@ -113,11 +117,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         };
 
         if (data.cotizacion) {
-        await axios.patch(`/api/cotizaciones/${params.cotizacionId}`, allData);
+          await axios.patch(
+            `/api/cotizaciones/${params.cotizacionId}`,
+            allData
+          );
         } else {
           await axios.patch(`/api/ordenes/${params.cotizacionId}`, allData);
         }
-
       } else {
         const allData = {
           ...data,
@@ -131,7 +137,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       router.push(`/cotizaciones`);
       toast.success(toastMessage);
     } catch (error: any) {
-      toast.error("Something went wrong.");
+      toast.error("No hay productos en stock.");
     } finally {
       setLoading(false);
       router.refresh();
@@ -294,7 +300,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Es una cotización</FormLabel>
                     <FormDescription>
-                      Si desea que sea una orden de entrega desmarque esta casilla.
+                      Si desea que sea una orden de entrega desmarque esta
+                      casilla.
                     </FormDescription>
                   </div>
                 </FormItem>
@@ -349,7 +356,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             </div>
           </div>
 
-          <Button disabled={loading} className="ml-auto" type="submit">
+          <Button
+            disabled={loading}
+            type="button"
+            variant="outline"
+            onClick={() => router.push("/cotizaciones")}
+          >
+            Cancelar
+          </Button>
+          <Button disabled={loading} className="ml-auto px-7 ml-2" type="submit">
             {action}
           </Button>
         </form>
