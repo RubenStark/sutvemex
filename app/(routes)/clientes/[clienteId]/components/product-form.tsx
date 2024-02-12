@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { Trash } from "lucide-react";
-import { Product } from "@prisma/client";
+import { Client } from "@prisma/client";
 import { useParams, useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
@@ -25,32 +25,29 @@ import { Heading } from "@/components/ui/heading";
 import { AlertModal } from "@/components/modals/alert-modal";
 
 const formSchema = z.object({
-  cantidad: z.coerce.number().min(1),
-  codigo: z.string().min(1),
-  descripcion: z.string().min(1),
-  precio: z.coerce.number().min(1),
+  nombre: z.string().min(3, "El nombre debe tener al menos 3 caracteres."),
+  direccion: z.string().min(3, "La direccion es requerida."),
+  poblacion: z.string().min(3, "La poblacion es requerida."),
+  telefono: z.string().min(3, "El telefono es requerido."),
+  correo: z.string().email("El correo no es valido."),
 });
 
-type ProductFormValues = z.infer<typeof formSchema>;
+type ClientFormValues = z.infer<typeof formSchema>;
 
-interface ProductFormProps {
-  initialData: Product | null;
+interface ClientFormProps {
+  initialData: Client | null;
 }
 
-export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
+export const ClientForm: React.FC<ClientFormProps> = ({ initialData }) => {
   const params = useParams();
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const title = initialData ? "Editar producto" : "Crear producto";
-  const description = initialData
-    ? "Editar un producto."
-    : "Añadir un producto";
-  const toastMessage = initialData
-    ? "Producto actualizado."
-    : "Producto creado.";
+  const title = initialData ? "Editar cliente" : "Crear cliente";
+  const description = initialData ? "Editar un cliente." : "Añadir un cliente";
+  const toastMessage = initialData ? "Cliente actualizado." : "Cliente creado.";
   const action = initialData ? "Guardar cambios" : "Crear";
 
   const defaultValues = initialData
@@ -58,33 +55,30 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
         ...initialData,
       }
     : {
-        cantidad: 0,
-        codigo: "",
-        descripcion: "",
-        precio: 0,
+        nombre: "",
+        direccion: "",
+        poblacion: "",
+        telefono: "",
+        correo: "",
       };
 
-  const form = useForm<ProductFormValues>({
+  const form = useForm<ClientFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
 
-  const onSubmit = async (data: ProductFormValues) => {
+  const onSubmit = async (data: ClientFormValues) => {
     try {
       setLoading(true);
       if (initialData) {
-        await axios.patch(`/api/products/${params.productId}`, data);
+        await axios.patch(`/api/clientes/${params.clienteId}`, data);
       } else {
-        await axios.post(`/api/products`, data);
+        await axios.post(`/api/clientes`, data);
       }
-      router.push(`/products`);
+      router.push(`/clientes`);
       toast.success(toastMessage);
     } catch (error: any) {
-      if (error.response && error.response.status === 400) {
-        toast.error("Este producto ya existe.");
-      } else {
-        toast.error("Something went wrong.");
-      }
+      toast.error("Something went wrong.");
     } finally {
       setLoading(false);
       router.refresh();
@@ -94,9 +88,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(`/api/products/${params.productId}`);
-      router.push(`/products`);
-      toast.success("Product deleted.");
+      await axios.delete(`/api/clientes/${params.clienteId}`);
+      router.push(`/clientes`);
+      toast.success("Client deleted.");
     } catch (error: any) {
       toast.error("Something went wrong.");
     } finally {
@@ -136,33 +130,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
           <div className="md:grid md:grid-cols-3 gap-8">
             <FormField
               control={form.control}
-              name="cantidad"
+              name="nombre"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cantidad</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      disabled={loading}
-                      placeholder="0"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="codigo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Codigo</FormLabel>
+                  <FormLabel>Nombre</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Codigo del producto"
+                      placeholder="Nombre del cliente"
                       {...field}
                     />
                   </FormControl>
@@ -172,14 +147,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
             />
             <FormField
               control={form.control}
-              name="descripcion"
+              name="direccion"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descripcion</FormLabel>
+                  <FormLabel>Dirección</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Descripcion del producto"
+                      placeholder="Direccion del cliente"
                       {...field}
                     />
                   </FormControl>
@@ -189,15 +164,48 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
             />
             <FormField
               control={form.control}
-              name="precio"
+              name="poblacion"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Precio unitario</FormLabel>
+                  <FormLabel>Población</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
                       disabled={loading}
-                      placeholder="9.99"
+                      placeholder="Población del cliente"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="telefono"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefono</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Telefono del cliente"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="correo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Correo</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Correo del cliente"
                       {...field}
                     />
                   </FormControl>
@@ -206,7 +214,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               )}
             />
           </div>
-          <Button disabled={loading} className="ml-auto" type="submit">
+          <Button disabled={loading} variant={"outline"} type="button" onClick={() => router.back()}>
+            Cancelar
+          </Button>
+          <Button disabled={loading} className="ml-2" type="submit">
             {action}
           </Button>
         </form>

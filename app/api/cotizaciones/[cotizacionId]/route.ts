@@ -40,13 +40,16 @@ export async function PATCH(
       return new NextResponse("Product id is required", { status: 400 });
     }
 
+    const consecutivo = `OE${(await prismadb.ordenDeEntrega.count()).toString()}${new Date().getFullYear()}`;
+    
+
     await prismadb.ordenDeEntrega.update({
       where: {
         id: params.cotizacionId,
         cotizacion: true,
       },
       data: {
-        consecutivo: (await prismadb.ordenDeEntrega.count()).toString(),
+        consecutivo: consecutivo,
         atencion,
         cliente,
         direccion,

@@ -21,12 +21,14 @@ const CotizacionesPage = async ({
     },
   });
 
+  const clients = await prismadb.client.findMany();
+
   const products = await prismadb.product.findMany();
 
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <ProductForm initialData={cotizacion} allProducts={products} />
+        <ProductForm initialData={cotizacion} allProducts={products} clients={clients}/>
       </div>
     </div>
   );

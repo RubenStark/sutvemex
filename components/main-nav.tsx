@@ -32,6 +32,11 @@ export function MainNav({
       label: 'Ordenes',
       active: pathname === `/ordenes`,
     },
+    {
+      href: `/clientes`,
+      label: 'Clientes',
+      active: pathname === `/clientes`,
+    },
   ]
 
   return (

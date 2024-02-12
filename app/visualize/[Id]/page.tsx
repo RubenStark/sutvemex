@@ -2,7 +2,6 @@
 
 import { OrdenDeEntrega } from "@prisma/client";
 import axios from "axios";
-import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -93,7 +92,7 @@ function Visualize() {
           </thead>
           <tbody>
             {cotizacion?.products.map((producto) => (
-              <tr>
+              <tr key={producto.id}>
                 <td style={{ border: "1px solid black", padding: "8px" }}>
                   {producto.cantidad}
                 </td>

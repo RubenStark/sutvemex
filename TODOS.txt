@@ -1,0 +1,7 @@
+
+
+productos en lista -
+Y que en vez cuando conviertes a orden que se descuenta cuando sea enviado -
+checar lo de enviado, y cambiar si o no por pendiente o entregado -
+productos unicos ppor codigo y descripción -
+agregar tabla clientes con dirección, población, etc... correo y telefono nombre ID 1/2 -

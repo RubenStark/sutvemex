@@ -47,6 +47,7 @@ const formSchema = z.object({
   poblacion: z.string().min(1),
   atencion: z.string().min(1),
   cotizacion: z.boolean().default(false),
+  entregado: z.boolean().default(false),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
@@ -70,7 +71,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [productId, setProductId] = useState<string>();
   const [productCode, setProductCode] = useState<string>();
 
-  const title = initialData ? "Editar orden de entrteg" : "Crear orden de entrega";
+  const title = initialData
+    ? "Editar orden de entrega"
+    : "Crear orden de entrega";
   const description = initialData
     ? "Editar una orden de entrega."
     : "Añadir una orden de entrega";
@@ -91,7 +94,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         consecutivo: "",
         fecha: new Date(),
         productIds: [],
-        cotizacion: true,
+        entregado: false,
       };
 
   const form = useForm<ProductFormValues>({
@@ -103,8 +106,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     try {
       setLoading(true);
       if (initialData) {
-        // primero de toda la data tenemos que poner los ids y las cantidades de los productos, Listo
-        // luego tenemos que poner el resto de la data
         const allData = {
           ...data,
           productIds: products.map((product) => ({
@@ -116,12 +117,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         console.log(allData);
 
         if (data.cotizacion) {
-          await axios.patch(
-            `/api/cotizaciones/${params.cotizacionId}`,
-            allData
-          );
+          await axios.patch(`/api/cotizaciones/${params.ordenId}`, allData);
         } else {
-          await axios.patch(`/api/ordenes/${params.cotizacionId}`, allData);
+          await axios.patch(`/api/ordenes/${params.ordenId}`, allData);
         }
       } else {
         const allData = {
@@ -136,7 +134,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       router.push(`/ordenes`);
       toast.success(toastMessage);
     } catch (error: any) {
-      toast.error("Something went wrong.");
+      if (error.response && error.response.status === 400) {
+        toast.error("No hay productos en existencia.");
+      } else {
+        toast.error("Something went wrong.");
+      }
     } finally {
       setLoading(false);
       router.refresh();
@@ -282,9 +284,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               )}
             />
 
-            {/* <FormField
+            <FormField
               control={form.control}
-              name="cotizacion"
+              name="entregado"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
@@ -295,16 +297,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Es una cotización</FormLabel>
+                    <FormLabel>¿Ha sido entregado?</FormLabel>
                     <FormDescription>
-                      Si desea que sea una orden de entrega desmarque esta casilla.
+                      Si desea que la orden de entrega sea marcada como
+                      entregada
                     </FormDescription>
                   </div>
                 </FormItem>
               )}
-            /> */}
+            />
 
-            {products?.map((product) => (
+            {/* {products?.map((product) => (
               <FormField
                 key={product.id}
                 name="productIds"
@@ -333,7 +336,31 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   </FormItem>
                 )}
               />
-            ))}
+            ))} */}
+          </div>
+          <div className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+            <ul>
+              {products?.map((product) => (
+                <li
+                  key={product.id}
+                  className="flex items-center justify-between p-2 border-b-2 border-gray-200 w-full"
+                >
+                  <span className="flex items-center">
+                    <span className="mr-2">{product.codigo}:</span>
+                    <span>{product.cantidad}</span>
+                  </span>
+                  <Trash
+                    className="h-4 w-4 ml-5 cursor-pointer hover:scale-125"
+                    onClick={() => {
+                      const newProducts = products.filter(
+                        (item) => item.id !== product.id
+                      );
+                      setProducts(newProducts);
+                    }}
+                  />
+                </li>
+              ))}
+            </ul>
           </div>
           <Separator />
 
@@ -360,11 +387,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           >
             Cancelar
           </Button>
-          <Button
-            disabled={loading}
-            className="ml-auto px-7 ml-2"
-            type="submit"
-          >
+          <Button disabled={loading} className="px-7 ml-2" type="submit">
             {action}
           </Button>
         </form>

@@ -32,7 +32,7 @@ const CotizacionesPage = async () => {
     productos: item.products,
     createdAt: format(new Date(item.createdAt), "dd/MM/yyyy"),
     updatedAt: format(new Date(item.updatedAt), "dd/MM/yyyy"),
-    enviado: item.entregado ? "Si" : "No",
+    enviado: item.entregado ? "Entregado" : "Pendiente",
   }));
 
   return (

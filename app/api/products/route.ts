@@ -7,6 +7,24 @@ export async function POST(req: Request) {
 
     const { cantidad, codigo, descripcion, precio } = body;
 
+    const existeProductoConMismoCodigo = await prismadb.product.findFirst({
+      where: {
+        codigo,
+      },
+    });
+
+    const existeProductoConMismaDescripcion = await prismadb.product.findFirst({
+      where: {
+        descripcion,
+      },
+    });
+
+    if (existeProductoConMismoCodigo || existeProductoConMismaDescripcion) {
+      return new NextResponse("Ya existe un producto con esas propiedades", {
+        status: 400,
+      });
+    }
+
     if (!cantidad || !codigo || !descripcion || !precio) {
       return new NextResponse("Faltan campos", { status: 400 });
     }

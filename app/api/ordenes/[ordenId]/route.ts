@@ -97,7 +97,7 @@ export async function PATCH(
   { params }: { params: { ordenId: string } }
 ) {
   try {
-    const { productIds, atencion, cliente, direccion, poblacion } =
+    const { productIds, atencion, cliente, direccion, poblacion, entregado } =
       await req.json();
 
     if (!params.ordenId) {
@@ -105,40 +105,41 @@ export async function PATCH(
     }
 
     // descontar los productos de inventario
-
-    for (const productId of productIds) {
-      const product = await prismadb.product.findUnique({
-        where: {
-          id: productId.id,
-        },
-      });
-
-      if (product) {
-        if (productId.cantidad > product.cantidad) {
-          console.log(productId.cantidad, product.cantidad);
-          return new NextResponse("No hay productos suficientes en stock", {
-            status: 400,
-          });
-        }
-      }
-    }
-
-    for (const productId of productIds) {
-      const product = await prismadb.product.findUnique({
-        where: {
-          id: productId.id,
-        },
-      });
-
-      if (product) {
-        await prismadb.product.update({
+    if (entregado) {
+      for (const productId of productIds) {
+        const product = await prismadb.product.findUnique({
           where: {
             id: productId.id,
           },
-          data: {
-            cantidad: product.cantidad - productId.cantidad,
+        });
+
+        if (product) {
+          if (productId.cantidad > product.cantidad) {
+            console.log(productId.cantidad, product.cantidad);
+            return new NextResponse("No hay productos suficientes en stock", {
+              status: 400,
+            });
+          }
+        }
+      }
+
+      for (const productId of productIds) {
+        const product = await prismadb.product.findUnique({
+          where: {
+            id: productId.id,
           },
         });
+
+        if (product) {
+          await prismadb.product.update({
+            where: {
+              id: productId.id,
+            },
+            data: {
+              cantidad: product.cantidad - productId.cantidad,
+            },
+          });
+        }
       }
     }
 
@@ -153,7 +154,7 @@ export async function PATCH(
         direccion,
         poblacion,
         cotizacion: false,
-        entregado: true,
+        entregado,
         products: {
           deleteMany: {},
         },

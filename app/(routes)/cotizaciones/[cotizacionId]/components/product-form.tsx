@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { Plus, Trash } from "lucide-react";
-import { OrdenDeEntrega, Product } from "@prisma/client";
+import { Client, OrdenDeEntrega, Product } from "@prisma/client";
 import { useParams, useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
@@ -25,14 +25,14 @@ import {
 
 import {
   Button as NextButton,
-  Select,
-  SelectItem,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
   useDisclosure,
+  Select as NextSelect,
+  SelectItem as NextSelectItem,
 } from "@nextui-org/react";
 
 import { Separator } from "@/components/ui/separator";
@@ -40,11 +40,18 @@ import { Heading } from "@/components/ui/heading";
 import { AlertModal } from "@/components/modals/alert-modal";
 import { ProductIds } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formSchema = z.object({
   cliente: z.string().min(1),
-  direccion: z.string().min(1),
-  poblacion: z.string().min(1),
+  // direccion: z.string().min(1),
+  // poblacion: z.string().min(1),
   atencion: z.string().min(1),
   cotizacion: z.boolean().default(true),
 });
@@ -54,11 +61,13 @@ type ProductFormValues = z.infer<typeof formSchema>;
 interface ProductFormProps {
   initialData: OrdenDeEntrega | null;
   allProducts: Product[];
+  clients: Client[];
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   allProducts,
+  clients,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -184,8 +193,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       }));
       setProducts(productsIds);
     }
-
-    console.log(allProducts);
   }, []);
 
   return (
@@ -216,7 +223,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           className="space-y-8 w-full"
         >
           <div className="md:grid md:grid-cols-3 gap-8">
-            <FormField
+            {/* <FormField
               control={form.control}
               name="cliente"
               render={({ field }) => (
@@ -232,8 +239,35 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField
+              control={form.control}
+              name="cliente"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cliente</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione un cliente" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {clients.map((client) => (
+                        <SelectItem key={client.id} value={client.id}>
+                          {client.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* <FormField
               control={form.control}
               name="direccion"
               render={({ field }) => (
@@ -266,7 +300,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField
               control={form.control}
               name="atencion"
@@ -308,7 +342,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               )}
             />
 
-            {products?.map((product) => (
+            {/* {products?.map((product) => (
               <FormField
                 key={product.id}
                 name="productIds"
@@ -337,7 +371,32 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   </FormItem>
                 )}
               />
-            ))}
+            ))} */}
+            
+          </div>
+          <div className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+            <ul>
+              {products?.map((product) => (
+                <li
+                  key={product.id}
+                  className="flex items-center justify-between p-2 border-b-2 border-gray-200 w-full"
+                >
+                  <span className="flex items-center">
+                    <span className="mr-2">{product.codigo}:</span>
+                    <span>{product.cantidad}</span>
+                  </span>
+                  <Trash
+                    className="h-4 w-4 ml-5 cursor-pointer hover:scale-125"
+                    onClick={() => {
+                      const newProducts = products.filter(
+                        (item) => item.id !== product.id
+                      );
+                      setProducts(newProducts);
+                    }}
+                  />
+                </li>
+              ))}
+            </ul>
           </div>
           <Separator />
 
@@ -347,7 +406,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 disabled={loading}
                 variant="secondary"
                 size="sm"
-                type="button" // Add this line
+                type="button"
                 onClick={onOpen}
               >
                 <Plus className="h-4 w-4" />
@@ -364,7 +423,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           >
             Cancelar
           </Button>
-          <Button disabled={loading} className="ml-auto px-7 ml-2" type="submit">
+          <Button disabled={loading} className="px-7 ml-2" type="submit">
             {action}
           </Button>
         </form>
@@ -379,7 +438,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </ModalHeader>
               <ModalBody>
                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-                  <Select
+                  <NextSelect
                     placeholder="Select an product"
                     className="max-w-xs h-10 bg-white"
                     size="sm"
@@ -387,7 +446,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     aria-label="Select an product"
                   >
                     {allProducts.map((product) => (
-                      <SelectItem
+                      <NextSelectItem
                         aria-label="Select an product"
                         key={product.id}
                         value={product.codigo}
@@ -398,9 +457,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         }}
                       >
                         {product.codigo}
-                      </SelectItem>
+                      </NextSelectItem>
                     ))}
-                  </Select>
+                  </NextSelect>
                   <Input
                     type="number"
                     placeholder="Cantidad"
